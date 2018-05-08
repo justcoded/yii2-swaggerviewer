@@ -3,6 +3,8 @@
 namespace justcoded\yii2\swaggerviewer;
 
 
+use yii\base\InvalidConfigException;
+
 class Module extends \yii\base\Module
 {
 	/**
@@ -27,6 +29,13 @@ class Module extends \yii\base\Module
 	public $fakerCopy = true;
 
 	/**
+	 * Number of faked items to generate.
+	 *
+	 * @var int
+	 */
+	public $fakerNum = 10;
+
+	/**
 	 * @inheritdoc
 	 * @var string
 	 */
@@ -34,10 +43,16 @@ class Module extends \yii\base\Module
 
 	/**
 	 * @inheritdoc
+	 * @throws InvalidConfigException Bad docsPath property configuration.
 	 */
 	public function init()
 	{
 		parent::init();
+
+		$filename = \Yii::getAlias($this->docsPath);
+		if (! is_file($filename)) {
+			throw new InvalidConfigException("SwaggerViewer Module configuration is wrong. Api doc file is invalid: $filename");
+		}
 	}
 
 }

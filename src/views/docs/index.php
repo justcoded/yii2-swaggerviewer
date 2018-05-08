@@ -3,8 +3,7 @@
  * @var \yii\web\View $this
  */
 
-use app\modules\swagger\assets\SwaggerAssetBundle;
-use app\modules\swagger\assets\YamlAssetBundle;
+use justcoded\yii2\swaggerviewer\assets\SwaggerAssetBundle;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -56,7 +55,7 @@ $swaggerAssets = SwaggerAssetBundle::register($this);
 
     // Build a system
     const ui = SwaggerUIBundle({
-      url: "<?php echo Url::to(['docs/specs']); ?>",
+      url: "<?php echo Url::to(['docs/specs'], true); ?>",
       dom_id: '#swagger-ui'
     })
 
