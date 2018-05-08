@@ -1,6 +1,7 @@
 <?php
 /**
  * @var \yii\web\View $this
+ * @var string $yamlUrl
  */
 
 use justcoded\yii2\swaggerviewer\assets\SwaggerAssetBundle;
@@ -13,56 +14,56 @@ $this->title  = 'Swagger Viewer';
 $swaggerAssets = SwaggerAssetBundle::register($this);
 ?>
 <?php $this->beginPage() ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<?= Html::csrfMetaTags() ?>
-	<title><?= Html::encode($this->title) ?></title>
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<?= Html::csrfMetaTags() ?>
+		<title><?= Html::encode($this->title) ?></title>
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
 
-	<?php $this->head(); ?>
-	
-	<style>
-		html
-		{
-			box-sizing: border-box;
-			overflow: -moz-scrollbars-vertical;
-			overflow-y: scroll;
-		}
+		<?php $this->head(); ?>
 
-		*,
-		*:before,
-		*:after
-		{
-			box-sizing: inherit;
-		}
+		<style>
+			html
+			{
+				box-sizing: border-box;
+				overflow: -moz-scrollbars-vertical;
+				overflow-y: scroll;
+			}
 
-		body
-		{
-			margin:0;
-			background: #fafafa;
-		}
-	</style>
-</head>
+			*,
+			*:before,
+			*:after
+			{
+				box-sizing: inherit;
+			}
 
-<body>
-<?php $this->beginBody() ?>
-<div id="swagger-ui"></div>
+			body
+			{
+				margin:0;
+				background: #fafafa;
+			}
+		</style>
+	</head>
 
-<script>
-  window.onload = function() {
+	<body>
+	<?php $this->beginBody() ?>
+	<div id="swagger-ui"></div>
 
-    // Build a system
-    const ui = SwaggerUIBundle({
-      url: "<?php echo Url::to(['docs/specs'], true); ?>",
-      dom_id: '#swagger-ui'
-    })
+	<script>
+      window.onload = function() {
 
-    window.ui = ui
-  }
-</script>
-<?php $this->endBody() ?>
-</body>
-</html>
+        // Build a system
+        const ui = SwaggerUIBundle({
+          url: "<?php echo $yamlUrl; ?>",
+          dom_id: '#swagger-ui'
+        })
+
+        window.ui = ui
+      }
+	</script>
+	<?php $this->endBody() ?>
+	</body>
+	</html>
 <?php $this->endPage() ?>

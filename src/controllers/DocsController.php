@@ -5,6 +5,7 @@ namespace justcoded\yii2\swaggerviewer\controllers;
 use app\controllers\Controller;
 use JustCoded\SwaggerTools\Formatter;
 use JustCoded\SwaggerTools\YamlReader;
+use justcoded\yii2\swaggerviewer\assets\YamlAssetBundle;
 use yii\helpers\Url;
 
 class DocsController extends Controller
@@ -16,7 +17,20 @@ class DocsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		return $this->render('index');
+		// TODO: make this check more smart, because we do multiple load 2 times for check and for docs load.
+		$yamlUrl  = Url::to(['docs/specs'], true);
+		$filename = \Yii::getAlias($this->module->docsPath);
+		$reader   = new YamlReader();
+		try {
+			$yaml = $reader->parseMultiFile($filename);
+		} catch (\Exception $e) {
+			$assets = YamlAssetBundle::register(\Yii::$app->view);
+			$yamlUrl = $assets->baseUrl . '/' . basename($filename);
+		}
+
+		return $this->render('index', [
+			'yamlUrl' => $yamlUrl,
+		]);
 	}
 
 	/**
@@ -27,6 +41,7 @@ class DocsController extends Controller
 	 */
 	public function actionSpecs()
 	{
+		// TODO: add some smart cache.
 		$filename = \Yii::getAlias($this->module->docsPath);
 
 		$reader = new YamlReader();
@@ -36,16 +51,16 @@ class DocsController extends Controller
 			$content  = file_get_contents($filename);
 			$yaml = $reader->parse($content);
 		}
-		
+
 		if ($this->module->fakerCopy) {
 			$yaml['externalDocs'] = [
 				'description' => 'Preprocessed Yaml with faker/formatter',
 				'url' => Url::to(['docs/formatted'], true),
 			];
 		}
-		
+
 		$yaml = $reader->dump($yaml);
-		
+
 		return $this->render('yaml', [
 			'yaml' => $yaml,
 		]);
@@ -68,7 +83,7 @@ class DocsController extends Controller
 		$yaml = Formatter::definitionsRequired($yaml);
 
 		$yaml = $reader->dump($yaml);
-		
+
 		return $this->render('yaml', [
 			'yaml' => $yaml,
 		]);
