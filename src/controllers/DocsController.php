@@ -6,10 +6,18 @@ use app\controllers\Controller;
 use JustCoded\SwaggerTools\Formatter;
 use JustCoded\SwaggerTools\YamlReader;
 use justcoded\yii2\swaggerviewer\assets\YamlAssetBundle;
+use justcoded\yii2\swaggerviewer\Module;
 use yii\helpers\Url;
 
 class DocsController extends Controller
 {
+	const CACHE_KEY = 'justcoded_yii2_swaggerviewer_parsed_file';
+
+	/**
+	 * @var Module
+	 */
+	public $module;
+	
 	/**
 	 * Displays dashboard with some statistics.
 	 *
@@ -23,6 +31,7 @@ class DocsController extends Controller
 		$reader   = new YamlReader();
 		try {
 			$yaml = $reader->parseMultiFile($filename);
+			\Yii::$app->cache->set(self::CACHE_KEY, $yaml);
 		} catch (\Exception $e) {
 			$assets = YamlAssetBundle::register(\Yii::$app->view);
 			$yamlUrl = $assets->baseUrl . '/' . basename($filename);
@@ -41,15 +50,16 @@ class DocsController extends Controller
 	 */
 	public function actionSpecs()
 	{
-		// TODO: add some smart cache.
+		$reader   = new YamlReader();
 		$filename = \Yii::getAlias($this->module->docsPath);
 
-		$reader = new YamlReader();
-		if ($this->module->multiDoc) {
-			$yaml = $reader->parseMultiFile($filename);
-		} else {
-			$content  = file_get_contents($filename);
-			$yaml = $reader->parse($content);
+		if (! $yaml = \Yii::$app->cache->get(self::CACHE_KEY)) {
+			if ($this->module->multiDoc) {
+				$yaml = $reader->parseMultiFile($filename);
+			} else {
+				$content  = file_get_contents($filename);
+				$yaml = $reader->parse($content);
+			}
 		}
 
 		if ($this->module->fakerCopy) {
@@ -75,11 +85,13 @@ class DocsController extends Controller
 	 */
 	public function actionFormatted()
 	{
+		$reader   = new YamlReader();
 		$filename = \Yii::getAlias($this->module->docsPath);
 
-		$reader = new YamlReader();
-		$yaml = $reader->parseMultiFile($filename);
-		$yaml = Formatter::definitionsFakeEnums($yaml, $this->module->fakerNum);
+		if (! $yaml = \Yii::$app->cache->get(self::CACHE_KEY)) {
+			$yaml   = $reader->parseMultiFile($filename);
+		}
+		$yaml = Formatter::definitionsFakeEnums($yaml, $this->module->fakerNum, $this->module->fakerCleanup);
 		$yaml = Formatter::definitionsRequired($yaml);
 
 		$yaml = $reader->dump($yaml);

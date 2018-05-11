@@ -36,6 +36,13 @@ class Module extends \yii\base\Module
 	public $fakerNum = 10;
 
 	/**
+	 * Remove x-faker* properties from yaml file.
+	 *
+	 * @var int
+	 */
+	public $fakerCleanup = true;
+
+	/**
 	 * @inheritdoc
 	 * @var string
 	 */
